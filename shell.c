@@ -34,13 +34,14 @@ int main()
 		{
 			write(STDOUT_FILENO, "#cisfun$ ", 9);
 		}
-		/* display prompt*/
-		write(STDOUT_FILENO, "#cisfun$ ", 9);
 		/* read input*/
 		read_in = getline(&lineptr, &line_len, stdin);
 		if (read_in == -1)
 		{
-			write(STDOUT_FILENO, "\n", 1); /*-1 on failure or handle the "end of file" condition (Ctrl+D)*/
+			if (isatty(STDIN_FILENO))
+			{
+				write(STDOUT_FILENO, "\n", 1); /*-1 on failure or handle the "end of file" condition (Ctrl+D)*/
+			}
 			free(lineptr);
 			lineptr = NULL;
 			break;
