@@ -29,6 +29,11 @@ int main()
 		}*/
 	while (1)
 	{
+		/* Display prompt only if interactive */
+		if (isatty(STDIN_FILENO))
+		{
+			write(STDOUT_FILENO, "#cisfun$ ", 9);
+		}
 		/* display prompt*/
 		write(STDOUT_FILENO, "#cisfun$ ", 9);
 		/* read input*/
