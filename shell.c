@@ -14,21 +14,36 @@
 int main(int argc, char *argv[])
 {
 	int status;
-	char *prompt = "& ";
+	char *lineptr = NULL;
+	size_t line_len;
+	ssize_t read_in;
+	(void)argc;
 
-	if (argc < 2)
+/* if (argc < 2)
 	{
 		write(STDOUT_FILENO, "Usage: ./hsh command [args...]\n", 32);
 		return (EXIT_FAILURE);
-	}
-
-	write(STDOUT_FILENO, prompt, 2);
-	if (fork() == 0)
+	}*/
+	while(1)
 	{
-		execvp(argv[1], argv + 1);
-		perror(argv[1]);
-		_exit(EXIT_FAILURE);
+		/* display prompt*/
+		write(STDOUT_FILENO, "$ ", 2);
+		/* read input*/
+		read_in = getline(&lineptr, &line_len, stdin);
+		if (read_in == -1)
+		{
+			write(STDOUT_FILENO,"\n", 2); /*-1 on failure or handle the "end of file" condition (Ctrl+D)*/
+			free(lineptr);
+			break;
+		}
+		if (fork() == 0)
+		{
+			execv(argv[1], argv + 1);
+			perror("No such file or directory");
+		}
+		wait(&status);
+		
 	}
-	wait(&status);
+	free(lineptr);
 	return (EXIT_SUCCESS);
 }
