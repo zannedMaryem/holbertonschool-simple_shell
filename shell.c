@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 /**
  * main - main entry file for simple shell.
@@ -19,6 +20,7 @@ int main()
 	size_t line_len;
 	ssize_t read_in;
 	char *argv[2];
+	pid_t pid;
 
 	/* if (argc < 2)
 		{
@@ -33,8 +35,9 @@ int main()
 		read_in = getline(&lineptr, &line_len, stdin);
 		if (read_in == -1)
 		{
-			write(STDOUT_FILENO, "\n", 2); /*-1 on failure or handle the "end of file" condition (Ctrl+D)*/
+			write(STDOUT_FILENO, "\n", 1); /*-1 on failure or handle the "end of file" condition (Ctrl+D)*/
 			free(lineptr);
+			lineptr = NULL;
 			break;
 		}
 		/*Replace the newline character with a null terminator*/
@@ -44,18 +47,19 @@ int main()
 			continue;
 		}
 		/*Create child process and use it to excute the command*/
-		if (fork() == -1) /* If fork failed*/
+		pid = fork();
+		if (pid == -1) /* If fork failed*/
 		{
 			perror("Error (fork)");
 			exit(EXIT_FAILURE);
 		}
-		if (fork() == 0) /* child process*/
+		if (pid == 0) /* child process*/
 		{
 			argv[0] = lineptr;
 			argv[1] = NULL;
 			if (execve(argv[0], argv, __environ) == -1)
 			{
-				perror("#cisfun");
+				perror("./hsh");
 				exit(EXIT_FAILURE);
 			}
 		}
