@@ -16,7 +16,7 @@
 int main()
 {
 	int status;
-	char *lineptr = NULL;
+	char *lineptr = NULL, *trim;
 	size_t line_len;
 	ssize_t read_in;
 	char *argv[2];
@@ -48,8 +48,8 @@ int main()
 		}
 		/*Replace the newline character with a null terminator*/
 		lineptr[strcspn(lineptr, "\n")] = '\0';
-		lineptr = trim_spaces(lineptr);
-		if (strlen(lineptr) == 0)
+		trim = trim_spaces(lineptr);
+		if (strlen(trim) == 0)
 		{
 			continue;
 		}
