@@ -62,7 +62,7 @@ int main()
 		}
 		if (pid == 0) /* child process*/
 		{
-			argv[0] = lineptr;
+			argv[0] = trim;
 			argv[1] = NULL;
 			if (execve(argv[0], argv, __environ) == -1)
 			{
