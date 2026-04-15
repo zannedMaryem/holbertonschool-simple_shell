@@ -48,6 +48,7 @@ int main()
 		}
 		/*Replace the newline character with a null terminator*/
 		lineptr[strcspn(lineptr, "\n")] = '\0';
+		lineptr = trim_spaces(lineptr);
 		if (strlen(lineptr) == 0)
 		{
 			continue;
