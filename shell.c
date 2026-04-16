@@ -15,18 +15,13 @@
  */
 int main()
 {
-	int status, i;
+	int status;
 	char *lineptr = NULL, *trim, *token;
 	size_t line_len;
 	ssize_t read_in;
-	char *argv[64];
+	char *argv[2];
 	pid_t pid;
 
-	/* if (argc < 2)
-		{
-			write(STDOUT_FILENO, "Usage: ./hsh command [args...]\n", 32);
-			return (EXIT_FAILURE);
-		}*/
 	while (1)
 	{
 		/* Display prompt only if interactive */
@@ -54,16 +49,12 @@ int main()
 			continue;
 		}
 		token = strtok(trim, " \t");
-		while (token != NULL && i < 63)
-		{
-    		argv[i++] = token;
-    		token = strtok(NULL, " \t");
-		}
-		argv[i] = NULL;
-		if (argv[0] == NULL)
+		if (token == NULL)
 		{
 			continue;
 		}
+		argv[0] = token;
+		argv[1] = NULL;
 		/*Create child process and use it to excute the command*/
 		pid = fork();
 		if (pid == -1) /* If fork failed*/
