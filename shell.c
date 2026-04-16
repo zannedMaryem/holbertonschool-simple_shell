@@ -15,7 +15,7 @@
  */
 int main()
 {
-	int status, i = 0;
+	int status, i;
 	char *lineptr = NULL, *trim, *token;
 	size_t line_len;
 	ssize_t read_in;
@@ -48,6 +48,7 @@ int main()
 		{
 			continue;
 		}
+		i = 0;
 		token = strtok(trim, " \t");
 		while (token != NULL && i < 63)
 		{
