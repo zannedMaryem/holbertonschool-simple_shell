@@ -15,11 +15,11 @@
  */
 int main()
 {
-	int status;
-	char *lineptr = NULL, *trim;
+	int status, i;
+	char *lineptr = NULL, *trim, *token;
 	size_t line_len;
 	ssize_t read_in;
-	char *argv[2];
+	char *argv[64];
 	pid_t pid;
 
 	/* if (argc < 2)
@@ -53,6 +53,17 @@ int main()
 		{
 			continue;
 		}
+		token = strtok(trim, " \t");
+		while (token != NULL && i < 63)
+		{
+    		argv[i++] = token;
+    		token = strtok(NULL, " \t");
+		}
+		argv[i] = NULL;
+		if (argv[0] == NULL)
+		{
+			continue;
+		}
 		/*Create child process and use it to excute the command*/
 		pid = fork();
 		if (pid == -1) /* If fork failed*/
@@ -62,8 +73,6 @@ int main()
 		}
 		if (pid == 0) /* child process*/
 		{
-			argv[0] = trim;
-			argv[1] = NULL;
 			if (execve(argv[0], argv, __environ) == -1)
 			{
 				perror("./hsh");
