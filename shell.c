@@ -51,6 +51,10 @@ int main()
 		trim = trim_spaces(lineptr);
 		if (strlen(trim) == 0)
 		{
+			/* Free the trimmed string (same as lineptr since trim_spaces modifies in-place) */
+			free(trim);
+			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
+			lineptr = NULL;
 			continue;
 		}
 		/*Handle multi-word commands*/
@@ -64,6 +68,10 @@ int main()
 		argv[i] = NULL;
 		if (argv[0] == NULL)
 		{
+			/* Free the trimmed string to prevent memory leak */
+			free(trim);
+			/* Reset lineptr to NULL for safe reuse by getline */
+			lineptr = NULL;
 			continue;
 		}
 		/*Handle PATH and do not fork if command does not exist*/
@@ -116,10 +124,14 @@ int main()
 		if (command_path == NULL)
 		{
 			fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
+			/* Free the trimmed string to prevent memory leak */
+			free(trim);
 			if (!isatty(STDIN_FILENO))
 			{
 				exit(127);
 			}
+			/* Reset lineptr for next iteration in interactive mode */
+			lineptr = NULL;
 			continue;
 		}
 		/* Set argv[0] to the full path of the command */
@@ -142,10 +154,15 @@ int main()
 		else /*Parent prcess : wait for child*/
 		{
 			wait(&status);
+			/* Free command_path if it was dynamically allocated during PATH search */
 			if (allocated_path)
 			{
 				free(command_path);
 			}
+			/* Free the trimmed string to prevent memory leak */
+			free(trim);
+			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
+			lineptr = NULL;
 		}
 	}
 	free(lineptr);
