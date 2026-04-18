@@ -116,6 +116,10 @@ int main()
 		if (command_path == NULL)
 		{
 			fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
+			if (!isatty(STDIN_FILENO))
+			{
+				exit(127);
+			}
 			continue;
 		}
 		/* Set argv[0] to the full path of the command */
