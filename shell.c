@@ -17,7 +17,7 @@ extern char **environ;
 
 int main()
 {
-	int status, i;
+	int status, i, allocated_path;
 	char *lineptr = NULL, *trim, *token, *command_path;
 	size_t line_len;
 	ssize_t read_in;
@@ -26,6 +26,7 @@ int main()
 
 	while (1)
 	{
+		allocated_path = 0;
 		/* Display prompt only if interactive */
 		if (isatty(STDIN_FILENO))
 		{
@@ -75,6 +76,7 @@ int main()
 			if (access(argv[0], X_OK) == 0)
 			{
 				command_path = argv[0];
+				allocated_path = 0;
 			}
 		}
 		else
@@ -100,6 +102,7 @@ int main()
 					{
 						/* Found executable command, duplicate the path */
 						command_path = strdup(candidate);
+						allocated_path = 1;
 						break;
 					}
 					/* Move to the next directory in PATH */
@@ -135,6 +138,10 @@ int main()
 		else /*Parent prcess : wait for child*/
 		{
 			wait(&status);
+			if (allocated_path)
+			{
+				free(command_path);
+			}
 		}
 	}
 	free(lineptr);
