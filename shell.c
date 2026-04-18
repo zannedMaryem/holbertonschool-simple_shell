@@ -13,10 +13,12 @@
  * @argv : array of arguments.
  * Return: return Success.
  */
+extern char **environ;
+
 int main()
 {
 	int status, i;
-	char *lineptr = NULL, *trim, *token;
+	char *lineptr = NULL, *trim, *token, *path;
 	size_t line_len;
 	ssize_t read_in;
 	char *argv[64];
@@ -30,24 +32,27 @@ int main()
 			write(STDOUT_FILENO, "#cisfun$ ", 9);
 		}
 		/* read input*/
-		read_in = getline(&lineptr, &line_len, stdin);
+		read_in = getline(&lineptr, &line_len, stdin); /*returns -1 on failure or the "end of file" condition (Ctrl+D)*/
 		if (read_in == -1)
 		{
-			if (isatty(STDIN_FILENO))
+			if (isatty(STDIN_FILENO)) 
 			{
-				write(STDOUT_FILENO, "\n", 1); /*-1 on failure or handle the "end of file" condition (Ctrl+D)*/
+				write(STDOUT_FILENO, "\n", 1); /*Exit with new line in interactive mode*/
 			}
 			free(lineptr);
 			lineptr = NULL;
 			break;
 		}
+		/*Evaluate input*/
 		/*Replace the newline character with a null terminator*/
 		lineptr[strcspn(lineptr, "\n")] = '\0';
+		/*removes spaces before and after command line*/
 		trim = trim_spaces(lineptr);
 		if (strlen(trim) == 0)
 		{
 			continue;
 		}
+		/*Handle multi-word commands*/
 		i = 0;
 		token = strtok(trim, " \t");
 		while (token != NULL && i < 63)
@@ -59,6 +64,17 @@ int main()
 		if (argv[0] == NULL)
 		{
 			continue;
+		}
+		/*Handle PATH and do not fork if command does not exist*/
+		path = get_path();
+		if (path)
+		{
+    		char *dir = strtok(path, ":");
+    		while (dir)
+    		{
+        	/* build candidate path: dir + "/" + command */
+        		dir = strtok(NULL, ":");
+    		}
 		}
 		/*Create child process and use it to excute the command*/
 		pid = fork();
