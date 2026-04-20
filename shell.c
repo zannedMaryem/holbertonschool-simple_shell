@@ -21,6 +21,7 @@ int main()
 	char *lineptr = NULL, *trim, *token;
 	size_t line_len;
 	ssize_t read_in;
+	pid_t pid;
 	char *argv[64];
 
 	while (1)
@@ -76,12 +77,13 @@ int main()
 		/*??????????*/
 
 		/*Create child process and use it to excute the command*/
-		if (fork() == -1) /* If fork failed*/
+		pid = fork();
+		if (pid == -1) /* If fork failed*/
 		{
 			perror("Error (fork)");
 			exit(EXIT_FAILURE);
 		}
-		if (fork() == 0) /* child process*/
+		if (pid == 0) /* child process*/
 		{
 			if (execve(argv[0], argv, environ) == -1)
 			{
