@@ -17,15 +17,16 @@ extern char **environ;
 
 int main()
 {
-	int status, i;
-	char *lineptr = NULL, *trim, *token, *PATH, *dir, *copy_path;
+	int status, i, allocated_path;
+	char *lineptr = NULL, *trim, *token, *command_path;
 	size_t line_len;
 	ssize_t read_in;
-	pid_t pid;
 	char *argv[64];
+	pid_t pid;
 
 	while (1)
 	{
+		allocated_path = 0;
 		/* Display prompt only if interactive */
 		if (isatty(STDIN_FILENO))
 		{
@@ -74,25 +75,67 @@ int main()
 			continue;
 		}
 		/*Handle PATH and do not fork if command does not exist*/
-		/*??????????*/
-		PATH = get_path();
-		if (!PATH) 
+		/* Initialize command_path to NULL */
+		command_path = NULL;
+		/* Check if the command contains a '/', indicating a full path */
+		if (strchr(argv[0], '/') != NULL)
 		{
-        	perror("PATH environment variable not found");
-        	return (EXIT_FAILURE);
-    	}
-		copy_path = strdup(PATH);
-		if (copy_path == NULL) 
-		{
-        	perror("Failed to duplicate PATH");
-        	return (EXIT_FAILURE);
-    	}
-		dir = strtok(copy_path, ":");
-		if (dir == NULL)
-		{
-			perror("error directory");
-			return(EXIT_FAILURE);
+			/* If it's a full path, check if it's executable */
+			if (access(argv[0], X_OK) == 0)
+			{
+				command_path = argv[0];
+				allocated_path = 0;
+			}
 		}
+		else
+		{
+			/* If not a full path, search in PATH */
+			char *path_str = get_path();
+			if (path_str)
+			{
+				/* Duplicate the PATH string for tokenization */
+				char *path_copy = strdup(path_str);
+				/* Get the first directory from PATH */
+				char *dir = strtok(path_copy, ":");
+				/* Loop through each directory in PATH */
+				while (dir)
+				{
+					/* Buffer to hold the candidate full path */
+					char candidate[1024];
+					int len;
+					/* Build the candidate path: dir/command */
+					len = snprintf(candidate, sizeof(candidate), "%s/%s", dir, argv[0]);
+					/* Check if the path was built successfully and is executable */
+					if (len >= 0 && (size_t)len < sizeof(candidate) && access(candidate, X_OK) == 0)
+					{
+						/* Found executable command, duplicate the path */
+						command_path = strdup(candidate);
+						allocated_path = 1;
+						break;
+					}
+					/* Move to the next directory in PATH */
+					dir = strtok(NULL, ":");
+				}
+				/* Free the duplicated PATH string */
+				free(path_copy);
+			}
+		}
+		/* If command was not found, print error and skip execution */
+		if (command_path == NULL)
+		{
+			fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
+			/* Free the trimmed string to prevent memory leak */
+			free(trim);
+			if (!isatty(STDIN_FILENO))
+			{
+				exit(127);
+			}
+			/* Reset lineptr for next iteration in interactive mode */
+			lineptr = NULL;
+			continue;
+		}
+		/* Set argv[0] to the full path of the command */
+		argv[0] = command_path;
 		/*Create child process and use it to excute the command*/
 		pid = fork();
 		if (pid == -1) /* If fork failed*/
@@ -111,6 +154,11 @@ int main()
 		else /*Parent prcess : wait for child*/
 		{
 			wait(&status);
+			/* Free command_path if it was dynamically allocated during PATH search */
+			if (allocated_path)
+			{
+				free(command_path);
+			}
 			/* Free the trimmed string to prevent memory leak */
 			free(trim);
 			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
