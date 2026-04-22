@@ -18,7 +18,7 @@ extern char **environ;
 int main()
 {
 	int status, i;
-	char *lineptr = NULL, *trim, *token;
+	char *lineptr = NULL, *trim, *token, *PATH, *dir, *copy_path;
 	size_t line_len;
 	ssize_t read_in;
 	pid_t pid;
@@ -75,7 +75,24 @@ int main()
 		}
 		/*Handle PATH and do not fork if command does not exist*/
 		/*??????????*/
-
+		PATH = get_path();
+		if (!PATH) 
+		{
+        	perror("PATH environment variable not found");
+        	return (EXIT_FAILURE);
+    	}
+		copy_path = strdup(PATH);
+		if (copy_path == NULL) 
+		{
+        	perror("Failed to duplicate PATH");
+        	return (EXIT_FAILURE);
+    	}
+		dir = strtok(copy_path, ":");
+		if (dir == NULL)
+		{
+			perror("error directory");
+			return(EXIT_FAILURE);
+		}
 		/*Create child process and use it to excute the command*/
 		pid = fork();
 		if (pid == -1) /* If fork failed*/
