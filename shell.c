@@ -114,7 +114,7 @@ int main()
 					/* Move to the next directory in PATH */
 					dir = strtok(NULL, ":");
 				}
-				/* Free the duplicated PATH string */
+				/* Free the duplicated PATH string (always, even if PATH was empty) */
 				free(path_copy);
 			}
 		}
