@@ -124,6 +124,8 @@ int main()
 			fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
 			if (!isatty(STDIN_FILENO))
 			{
+				/* Free the buffer allocated by getline before exiting */
+				free(lineptr);
 				exit(127);
 			}
 			/* Free the buffer allocated by getline before resetting */
