@@ -79,6 +79,20 @@ int main()
 			free(lineptr);
 			exit(last_status);
 		}
+		/* Handle env built-in */
+		if (strcmp(argv[0], "env") == 0)
+		{
+			char **env = environ;
+			while (*env)
+			{
+				printf("%s\n", *env);
+				env++;
+			}
+			/* Free the buffer allocated by getline before resetting */
+			free(lineptr);
+			lineptr = NULL;
+			continue;
+		}
 		/*Handle PATH and do not fork if command does not exist*/
 		/* Initialize command_path to NULL */
 		command_path = NULL;
