@@ -51,7 +51,8 @@ int main()
 		trim = trim_spaces(lineptr);
 		if (strlen(trim) == 0)
 		{
-			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
+			/* Free the buffer allocated by getline before resetting */
+			free(lineptr);
 			lineptr = NULL;
 			continue;
 		}
@@ -66,7 +67,8 @@ int main()
 		argv[i] = NULL;
 		if (argv[0] == NULL)
 		{
-			/* Reset lineptr to NULL for safe reuse by getline */
+			/* Free the buffer allocated by getline before resetting */
+			free(lineptr);
 			lineptr = NULL;
 			continue;
 		}
@@ -124,7 +126,8 @@ int main()
 			{
 				exit(127);
 			}
-			/* Reset lineptr for next iteration in interactive mode */
+			/* Free the buffer allocated by getline before resetting */
+			free(lineptr);
 			lineptr = NULL;
 			continue;
 		}
@@ -153,7 +156,8 @@ int main()
 			{
 				free(command_path);
 			}
-			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
+			/* Free the buffer allocated by getline before resetting */
+			free(lineptr);
 			lineptr = NULL;
 		}
 	}
