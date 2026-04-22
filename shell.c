@@ -17,7 +17,7 @@ extern char **environ;
 
 int main()
 {
-	int status, i, allocated_path;
+	int status, i, allocated_path, last_status;
 	char *lineptr = NULL, *trim, *token, *command_path;
 	size_t line_len;
 	ssize_t read_in;
@@ -77,7 +77,7 @@ int main()
 		{
 			/* Free the buffer allocated by getline before exiting */
 			free(lineptr);
-			exit(EXIT_SUCCESS);
+			exit(last_status);
 		}
 		/*Handle PATH and do not fork if command does not exist*/
 		/* Initialize command_path to NULL */
@@ -160,6 +160,11 @@ int main()
 		else /*Parent prcess : wait for child*/
 		{
 			wait(&status);
+			/* Store the exit status of the child */
+			if (WIFEXITED(status))
+				last_status = WEXITSTATUS(status);
+			else
+				last_status = 1;
 			/* Free command_path if it was dynamically allocated during PATH search */
 			if (allocated_path)
 			{
