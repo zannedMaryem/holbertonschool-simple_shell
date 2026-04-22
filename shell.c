@@ -17,7 +17,7 @@ extern char **environ;
 
 int main()
 {
-	int status, i, allocated_path, last_status;
+	int status, i, allocated_path, last_status = 0;
 	char *lineptr = NULL, *trim, *token, *command_path;
 	size_t line_len;
 	ssize_t read_in;
