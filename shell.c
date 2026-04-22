@@ -51,8 +51,6 @@ int main()
 		trim = trim_spaces(lineptr);
 		if (strlen(trim) == 0)
 		{
-			/* Free the trimmed string (same as lineptr since trim_spaces modifies in-place) */
-			free(trim);
 			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
 			lineptr = NULL;
 			continue;
@@ -68,8 +66,6 @@ int main()
 		argv[i] = NULL;
 		if (argv[0] == NULL)
 		{
-			/* Free the trimmed string to prevent memory leak */
-			free(trim);
 			/* Reset lineptr to NULL for safe reuse by getline */
 			lineptr = NULL;
 			continue;
@@ -124,8 +120,6 @@ int main()
 		if (command_path == NULL)
 		{
 			fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
-			/* Free the trimmed string to prevent memory leak */
-			free(trim);
 			if (!isatty(STDIN_FILENO))
 			{
 				exit(127);
@@ -159,8 +153,6 @@ int main()
 			{
 				free(command_path);
 			}
-			/* Free the trimmed string to prevent memory leak */
-			free(trim);
 			/* Reset lineptr to NULL for safe reuse by getline in next iteration */
 			lineptr = NULL;
 		}
