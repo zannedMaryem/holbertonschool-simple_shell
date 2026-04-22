@@ -72,6 +72,13 @@ int main()
 			lineptr = NULL;
 			continue;
 		}
+		/* Handle exit built-in */
+		if (strcmp(argv[0], "exit") == 0)
+		{
+			/* Free the buffer allocated by getline before exiting */
+			free(lineptr);
+			exit(EXIT_SUCCESS);
+		}
 		/*Handle PATH and do not fork if command does not exist*/
 		/* Initialize command_path to NULL */
 		command_path = NULL;
